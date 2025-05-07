@@ -3,8 +3,8 @@ const CACHE_NAME = 'knot-app-cache-v1';
 
 // Resources to cache on install
 const PRECACHE_RESOURCES = [
-  './',
-  './index.html',
+  './KnotPractice/',
+  './KnotPractice/index.html',
   'https://cdn.tailwindcss.com',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js',
   'https://unpkg.com/lucide-static@latest/font/Lucide.ttf',
