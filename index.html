@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="description" content="A progressive web app for learning and testing knots">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <title>Knot Testing App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
@@ -52,6 +56,17 @@
       .icon-save::before { content: "\f0209"; }
       .icon-rotate-ccw::before { content: "\f0200"; }
       .icon-book-open::before { content: "\f0075"; }
+      .icon-menu::before { content: "\f0197"; }
+
+      /* Mobile menu styles */
+      @media (max-width: 768px) {
+        #main-nav {
+          max-height: 0;
+        }
+        #main-nav.expanded {
+          max-height: 300px;
+        }
+      }
 
       /* Basic loading spinner */
       .spinner {
@@ -126,33 +141,53 @@
           }
         }
       }
+
+      // Register Service Worker
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then(registration => {
+              console.log('ServiceWorker registration successful');
+            })
+            .catch(err => {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+      }
     </script>
 </head>
 <body class="bg-gray-100 font-sans min-h-screen flex flex-col">
 
-    <header class="bg-blue-600 text-white p-4 shadow-md sticky top-0 z-20">
-        <h1 class="text-xl font-bold text-center">Knot Testing App</h1>
+    <header class="bg-blue-600 text-white p-3 shadow-md sticky top-0 z-20">
+        <div class="container mx-auto max-w-4xl flex justify-between items-center">
+            <h1 class="text-xl font-bold">Knot Testing App</h1>
+            <button id="menu-toggle" class="md:hidden p-2 rounded hover:bg-blue-700 transition-colors">
+                <img src="https://unpkg.com/lucide-static@latest/icons/menu.svg" alt="menu icon" class="w-6 h-6" />
+            </button>
+        </div>
     </header>
 
     <main class="flex-grow container mx-auto p-4 max-w-4xl">
 
-        <nav class="bg-white rounded-lg shadow p-2 mb-4 flex flex-wrap justify-center gap-2 sticky top-[64px] z-10">
-            <button data-section="browser" class="nav-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-1 text-sm transition duration-150 ease-in-out">
-                <img src="https://unpkg.com/lucide-static@latest/icons/list.svg" alt="list icon" />
-            </button>
-            <button data-section="add-knot" class="nav-button bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-1 text-sm transition duration-150 ease-in-out">
-                <img src="https://unpkg.com/lucide-static@latest/icons/plus.svg" alt="plus icon" /> Add Knot
-            </button>
-            <button data-section="test-mode" class="nav-button bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-1 text-sm transition duration-150 ease-in-out">
-                <img src="https://unpkg.com/lucide-static@latest/icons/test-tube.svg" alt="test tube icon" /> Test Mode
-            </button>
-             <button data-section="progress" class="nav-button bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-1 text-sm transition duration-150 ease-in-out">
-                <img src="https://unpkg.com/lucide-static@latest/icons/chart-no-axes-combined.svg" alt="chart-no-axes-combined icon" /> Progress
-            </button>
-            <button data-section="import-export" class="nav-button bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-1 text-sm transition duration-150 ease-in-out">
-                <img src="https://unpkg.com/lucide-static@latest/icons/download.svg" alt="download icon" />
-                <img src="https://unpkg.com/lucide-static@latest/icons/upload.svg" alt="upload icon" /> I/O
-            </button>
+        <nav id="main-nav" class="bg-white rounded-lg shadow p-2 mb-4 overflow-hidden transition-all duration-300 md:sticky md:top-[60px] md:z-10">
+            <div class="flex flex-col md:flex-row md:flex-wrap md:justify-center md:gap-2">
+                <button data-section="browser" class="nav-button bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-1 text-sm transition duration-150 ease-in-out mb-2 md:mb-0">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/list.svg" alt="list icon" /> Browse
+                </button>
+                <button data-section="add-knot" class="nav-button bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-1 text-sm transition duration-150 ease-in-out mb-2 md:mb-0">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/plus.svg" alt="plus icon" /> Add Knot
+                </button>
+                <button data-section="test-mode" class="nav-button bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-1 text-sm transition duration-150 ease-in-out mb-2 md:mb-0">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/test-tube.svg" alt="test tube icon" /> Test
+                </button>
+                <button data-section="progress" class="nav-button bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-1 text-sm transition duration-150 ease-in-out mb-2 md:mb-0">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/chart-no-axes-combined.svg" alt="chart-no-axes-combined icon" /> Stats
+                </button>
+                <button data-section="import-export" class="nav-button bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-1 text-sm transition duration-150 ease-in-out mb-2 md:mb-0">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/download.svg" alt="download icon" />
+                    <img src="https://unpkg.com/lucide-static@latest/icons/upload.svg" alt="upload icon" /> I/O
+                </button>
+            </div>
         </nav>
 
         <div id="app-content">
@@ -414,8 +449,37 @@
                 <div>
                     <h3 class="font-medium mb-2">Import Knots</h3>
                     <p class="text-sm text-red-600 mb-3 font-semibold">Warning: Importing will replace ALL current knot and progress data.</p>
-                    <p class="text-sm text-gray-600 mb-3">Select a previously exported JSON file to import.</p>
-                    <input type="file" id="import-file" accept=".json" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3">
+                    
+                    <div class="flex mb-2">
+                        <button id="import-local-tab" class="px-4 py-2 border-b-2 border-blue-500 font-medium text-sm text-blue-600">From Local File</button>
+                        <button id="import-url-tab" class="px-4 py-2 border-b-2 border-gray-200 font-medium text-sm text-gray-500">From URL</button>
+                    </div>
+                    
+                    <div id="import-local-section">
+                        <p class="text-sm text-gray-600 mb-3">Select a previously exported JSON file to import.</p>
+                        <input type="file" id="import-file" accept=".json" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-3">
+                    </div>
+                    
+                    <div id="import-url-section" class="hidden">
+                        <p class="text-sm text-gray-600 mb-3">Enter a URL to a JSON file to import.</p>
+                        <div class="flex mb-3">
+                            <input type="url" id="import-url" placeholder="https://example.com/knots.json" class="block w-full px-3 py-2 border border-gray-300 rounded-l-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            <button id="import-url-validate" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-r-md border border-gray-300 border-l-0 text-sm transition duration-150 ease-in-out">
+                                Validate
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-3">
+                          <span class="font-medium">Tip:</span> Google Drive share links are supported! Make sure your file is set to "Anyone with the link can view".
+                        </p>
+                        <div id="import-url-preview" class="hidden mb-3 p-3 bg-gray-50 border rounded-md text-sm">
+                            <div class="flex justify-between">
+                                <p class="font-medium">URL Content Preview:</p>
+                                <p id="import-url-size"></p>
+                            </div>
+                            <p id="import-url-knot-count" class="text-gray-600"></p>
+                        </div>
+                    </div>
+                    
                     <button id="import-button" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-1 text-sm transition duration-150 ease-in-out disabled:opacity-50" disabled>
                         <img src="https://unpkg.com/lucide-static@latest/icons/upload.svg" alt="upload icon" /> Import Data
                     </button>
@@ -463,6 +527,8 @@
         const appContent = document.getElementById('app-content');
         const loadingIndicator = document.getElementById('loading-indicator');
         const toastMessage = document.getElementById('toast-message');
+        const menuToggle = document.getElementById('menu-toggle');
+        const mainNav = document.getElementById('main-nav');
 
         // Knot Browser Elements
         const knotListContainer = document.getElementById('knot-list');
@@ -535,7 +601,21 @@
         const importButton = document.getElementById('import-button');
         const importStatusP = document.getElementById('import-status');
         const resetAllDataButton = document.getElementById('reset-all-data-button');
+        
+        // URL Import Elements
+        const importLocalTab = document.getElementById('import-local-tab');
+        const importUrlTab = document.getElementById('import-url-tab');
+        const importLocalSection = document.getElementById('import-local-section');
+        const importUrlSection = document.getElementById('import-url-section');
+        const importUrlInput = document.getElementById('import-url');
+        const importUrlValidateButton = document.getElementById('import-url-validate');
+        const importUrlPreview = document.getElementById('import-url-preview');
+        const importUrlSize = document.getElementById('import-url-size');
+        const importUrlKnotCount = document.getElementById('import-url-knot-count');
 
+        // Current import source (file or url)
+        let currentImportSource = 'file';
+        let validatedUrlData = null;
 
         // --- State ---
         let knotDatabase = []; // Array of knot objects
@@ -1300,12 +1380,18 @@
                 return '<p class="text-sm text-gray-500 italic">No media resources available.</p>';
             }
 
-            return mediaUrls.map((media, index) => {
+            // Collect all URLs for potential caching
+            const allMediaUrls = [];
+            
+            const mediaHtml = mediaUrls.map((media, index) => {
                 const { type, url } = media;
                 if (!url || typeof url !== 'string' || !url.startsWith('http')) {
                     return `<p class="text-sm text-red-500">Invalid or non-HTTP(S) URL (${index + 1})</p>`;
                 }
 
+                // Add to list of URLs to potentially cache
+                allMediaUrls.push(url);
+                
                 try {
                     // Basic sanitization
                     const safeUrl = url.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -1367,6 +1453,16 @@
                      return `<p class="text-sm text-red-500">Error rendering media URL ${index + 1}.</p>`;
                 }
             }).join('');
+            
+            // Request service worker to cache these resources for offline use
+            if (allMediaUrls.length > 0 && 'serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'CACHE_MEDIA',
+                    urls: allMediaUrls
+                });
+            }
+            
+            return mediaHtml;
         }
 
 
@@ -1862,9 +1958,375 @@
          */
         function setupImportExport() {
             importFileInput.value = '';
+            importUrlInput.value = '';
             importButton.disabled = true;
             importStatusP.textContent = '';
             importStatusP.className = 'text-sm mt-2';
+            importUrlPreview.classList.add('hidden');
+            validatedUrlData = null;
+            
+            // Default to file import tab
+            showImportTab('file');
+        }
+
+        /**
+         * Switches between import tabs (file or URL).
+         * @param {string} tab - The tab to show ('file' or 'url').
+         */
+        function showImportTab(tab) {
+            currentImportSource = tab;
+            
+            if (tab === 'file') {
+                importLocalTab.classList.replace('border-gray-200', 'border-blue-500');
+                importLocalTab.classList.replace('text-gray-500', 'text-blue-600');
+                importUrlTab.classList.replace('border-blue-500', 'border-gray-200');
+                importUrlTab.classList.replace('text-blue-600', 'text-gray-500');
+                
+                importLocalSection.classList.remove('hidden');
+                importUrlSection.classList.add('hidden');
+            } else {
+                importUrlTab.classList.replace('border-gray-200', 'border-blue-500');
+                importUrlTab.classList.replace('text-gray-500', 'text-blue-600');
+                importLocalTab.classList.replace('border-blue-500', 'border-gray-200');
+                importLocalTab.classList.replace('text-blue-600', 'text-gray-500');
+                
+                importUrlSection.classList.remove('hidden');
+                importLocalSection.classList.add('hidden');
+            }
+            
+            // Update button state based on the current tab and validation state
+            updateImportButtonState();
+        }
+
+        /**
+         * Updates the import button state based on the current import source and validation.
+         */
+        function updateImportButtonState() {
+            if (currentImportSource === 'file') {
+                importButton.disabled = !importFileInput.files[0];
+            } else {
+                importButton.disabled = !validatedUrlData;
+            }
+        }
+
+        /**
+         * Validates a URL to check if it contains valid JSON knot data.
+         */
+        async function validateImportUrl() {
+            let url = importUrlInput.value.trim();
+            if (!url) {
+                showToast("Please enter a URL", "error");
+                return;
+            }
+            
+            // Check if it's a Google Drive share link and transform it
+            const originalUrl = url;
+            url = transformGoogleDriveLink(url);
+            
+            // Provide feedback if URL was transformed
+            if (url !== originalUrl) {
+                importStatusP.textContent = 'Google Drive link detected. Transforming to direct download link...';
+                importStatusP.className = 'text-sm mt-2 text-blue-600';
+            }
+            
+            // Normal validation for non-Google Drive URLs
+            if (!url.match(/^https?:\/\/.+(\.json($|\?)|\/uc\?export=download&id=)/i)) {
+                importStatusP.textContent = 'URL should point to a .json file';
+                importStatusP.className = 'text-sm mt-2 text-yellow-600';
+                return;
+            }
+            
+            importStatusP.textContent = 'Validating URL...';
+            importStatusP.className = 'text-sm mt-2 text-blue-600';
+            importUrlPreview.classList.add('hidden');
+            validatedUrlData = null;
+            importButton.disabled = true;
+            
+            try {
+                showLoading();
+                
+                // Attempt to fetch with credentials first for CORS-enabled servers
+                let response;
+                try {
+                    response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                        cache: 'no-cache' // Prevent caching issues
+                    });
+                } catch (corsError) {
+                    // If the direct fetch fails (e.g., CORS error), try a different approach
+                    // This is a common issue with Google Drive and some other providers
+                    console.warn("Direct fetch failed, possibly due to CORS:", corsError);
+                    
+                    // Show a more friendly error message about CORS
+                    if (url.includes('drive.google.com')) {
+                        importStatusP.textContent = 'Note: For Google Drive files, make sure the file is set to "Anyone with the link can view"';
+                        importStatusP.className = 'text-sm mt-2 text-yellow-600';
+                    }
+                    
+                    // Re-throw to handle in the catch block
+                    throw new Error("Network error: Could not access the file. It may be due to CORS restrictions or the file is not publicly accessible.");
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error: ${response.status}`);
+                }
+                
+                let data;
+                try {
+                    data = await response.json();
+                } catch (parseError) {
+                    // Special handling for invalid JSON (could be a Google Drive HTML response)
+                    if (url.includes('drive.google.com')) {
+                        throw new Error("Could not parse JSON from Google Drive. If the file is large (>5MB), try using a direct download link or GitHub Gist instead.");
+                    } else {
+                        throw new Error("Invalid JSON format: " + parseError.message);
+                    }
+                }
+                
+                hideLoading();
+                
+                // Validate structure
+                if (!data || !Array.isArray(data.knots)) {
+                    throw new Error("Invalid JSON format. Expected an object with a 'knots' array.");
+                }
+                
+                // Preview data
+                const knotCount = data.knots.length;
+                const hasProgress = data.knots.some(k => k.learning && typeof k.learning.easeFactor === 'number');
+                const hasHistory = Array.isArray(data.history);
+                const jsonSize = new Blob([JSON.stringify(data)]).size;
+                const readableSize = formatBytes(jsonSize);
+                
+                importUrlSize.textContent = `Size: ${readableSize}`;
+                importUrlKnotCount.textContent = `Found ${knotCount} knots${hasProgress ? ' with learning data' : ''}${hasHistory ? ` and ${data.history.length} history records` : ''}.`;
+                importUrlPreview.classList.remove('hidden');
+                
+                // Store transformed URL with the validated data
+                validatedUrlData = data;
+                validatedUrlData._sourceUrl = url; // Store the transformed URL
+                
+                importButton.disabled = false;
+                importStatusP.textContent = 'URL validated successfully! Click Import to load this data.';
+                importStatusP.className = 'text-sm mt-2 text-green-600';
+            } catch (error) {
+                hideLoading();
+                console.error("Error validating URL:", error);
+                importStatusP.textContent = `Error: ${error.message}`;
+                importStatusP.className = 'text-sm mt-2 text-red-600';
+                importButton.disabled = true;
+            }
+        }
+
+        /**
+         * Transforms a Google Drive share link to a direct download link.
+         * @param {string} url - The URL to transform.
+         * @returns {string} The transformed URL or the original if not a Google Drive link.
+         */
+        function transformGoogleDriveLink(url) {
+            // Check for different Google Drive share URL formats
+            
+            // Format: https://drive.google.com/file/d/FILE_ID/view...
+            const filePattern = /https:\/\/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)(?:\/(?:view|edit).*)?/i;
+            let match = url.match(filePattern);
+            if (match) {
+                const fileId = match[1];
+                return `https://drive.google.com/uc?export=download&id=${fileId}`;
+            }
+            
+            // Format: https://drive.google.com/open?id=FILE_ID
+            const openPattern = /https:\/\/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/i;
+            match = url.match(openPattern);
+            if (match) {
+                const fileId = match[1];
+                return `https://drive.google.com/uc?export=download&id=${fileId}`;
+            }
+            
+            // Format: Already in the correct format
+            const downloadPattern = /https:\/\/drive\.google\.com\/uc\?export=download&id=([a-zA-Z0-9_-]+)/i;
+            if (downloadPattern.test(url)) {
+                return url; // Already in the correct format
+            }
+            
+            // Handle Google Drive shortlinks (https://docs.google.com/...)
+            const docsPattern = /https:\/\/docs\.google\.com\/[a-z]+\/d\/([a-zA-Z0-9_-]+)(?:\/(?:edit|view).*)?/i;
+            match = url.match(docsPattern);
+            if (match) {
+                const fileId = match[1];
+                return `https://drive.google.com/uc?export=download&id=${fileId}`;
+            }
+            
+            // Return the original URL if it doesn't match any known Google Drive formats
+            return url;
+        }
+
+        /**
+         * Formats a byte size into a human-readable string.
+         * @param {number} bytes - The size in bytes.
+         * @returns {string} Human-readable size.
+         */
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        /**
+         * Handles the import button click.
+         */
+        function handleImport() {
+            if (currentImportSource === 'file') {
+                handleFileImport();
+            } else {
+                handleUrlImport();
+            }
+        }
+
+        /**
+         * Handles importing from a local file.
+         */
+        function handleFileImport() {
+            const file = importFileInput.files[0];
+            if (!file) {
+                showToast("No file selected for import.", "error");
+                return;
+            }
+
+            if (!confirm("WARNING: Importing this file will REPLACE all your current knots and learning progress/history. Are you sure you want to continue? Consider exporting your current data first as a backup.")) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const importedData = JSON.parse(event.target.result);
+                    processImportedData(importedData);
+                } catch (error) {
+                    console.error("Error importing file:", error);
+                    importStatusP.textContent = `Import failed: ${error.message}`;
+                    importStatusP.className = 'text-sm mt-2 text-red-600';
+                    showToast("Failed to import data. Check file format.", "error");
+                }
+            };
+
+            reader.onerror = function() {
+                 importStatusP.textContent = 'Error reading the selected file.';
+                 importStatusP.className = 'text-sm mt-2 text-red-600';
+                 showToast("Error reading file.", "error");
+            };
+
+            reader.readAsText(file);
+        }
+
+        /**
+         * Handles importing from a URL.
+         */
+        function handleUrlImport() {
+            if (!validatedUrlData) {
+                showToast("Please validate the URL first.", "error");
+                return;
+            }
+            
+            if (!confirm("WARNING: Importing this data will REPLACE all your current knots and learning progress/history. Are you sure you want to continue? Consider exporting your current data first as a backup.")) {
+                return;
+            }
+            
+            try {
+                processImportedData(validatedUrlData);
+            } catch (error) {
+                console.error("Error processing URL data:", error);
+                importStatusP.textContent = `Import failed: ${error.message}`;
+                importStatusP.className = 'text-sm mt-2 text-red-600';
+                showToast("Failed to import data. Check data format.", "error");
+            }
+        }
+
+        /**
+         * Processes imported data from either file or URL.
+         * @param {object} importedData - The parsed JSON data.
+         */
+        function processImportedData(importedData) {
+            if (!importedData || !Array.isArray(importedData.knots)) {
+                throw new Error("Invalid file format. Expected an object with a 'knots' array.");
+            }
+
+            const importedKnots = importedData.knots;
+            // Check if progress data seems present in *any* knot
+            const hasKnotProgressData = importedKnots.some(k => k.learning && typeof k.learning.easeFactor === 'number');
+            // Check for historical data
+            const importedHistory = importedData.history;
+            const hasHistoryData = Array.isArray(importedHistory);
+
+            // Validate and sanitize imported knots
+            const validatedKnots = [];
+            importedKnots.forEach((knot, index) => {
+                if (!knot || typeof knot.name !== 'string' || typeof knot.description !== 'string' || typeof knot.typingLevel !== 'number') {
+                     console.warn(`Skipping invalid knot structure at index ${index} during import.`);
+                     return;
+                }
+                knot.id = generateId(); // Always assign new ID on import
+                if (hasKnotProgressData) {
+                     ensureLearningData(knot); // Validate/initialize if progress included
+                } else {
+                     // Reset learning data if progress wasn't included
+                     knot.learning = {
+                        nextReviewDate: getTodayDateString(), interval: 0, easeFactor: DEFAULT_EASE_FACTOR, consecutiveCorrect: 0
+                    };
+                }
+                 // Basic sanitization
+                 knot.category = typeof knot.category === 'string' ? knot.category.trim() : 'Uncategorized';
+                 knot.alternateNames = Array.isArray(knot.alternateNames) ? knot.alternateNames.map(n => String(n).trim()).filter(Boolean) : [];
+                 knot.mediaUrls = Array.isArray(knot.mediaUrls) ? knot.mediaUrls.filter(m => m && m.type && m.url) : [];
+                 knot.url = typeof knot.url === 'string' ? knot.url.trim() : null;
+
+                 validatedKnots.push(knot);
+            });
+
+             // Validate imported history data
+             let validatedHistory = [];
+             if (hasHistoryData) {
+                validatedHistory = importedHistory.filter(item =>
+                    item && typeof item.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(item.date) &&
+                    typeof item.correct === 'number' && typeof item.total === 'number' && item.total >= item.correct
+                );
+                console.log(`Importing ${validatedHistory.length} valid historical records.`);
+             } else {
+                 console.log("No historical data found or included in import file.");
+             }
+
+
+            // Replace current database and history
+            knotDatabase = validatedKnots;
+            historicalData = validatedHistory;
+            saveKnots();
+            saveHistory();
+
+            let importMessage = `Successfully imported ${validatedKnots.length} knots.`;
+            if (hasKnotProgressData) importMessage += " Learning progress included.";
+            else importMessage += " Learning progress reset.";
+            if (hasHistoryData) importMessage += ` ${validatedHistory.length} history records included.`;
+
+
+            importStatusP.textContent = importMessage;
+            importStatusP.className = 'text-sm mt-2 text-green-600';
+            showToast("Data imported successfully!", "success");
+
+            // Reset UI and navigate
+            importFileInput.value = '';
+            importUrlInput.value = '';
+            importUrlPreview.classList.add('hidden');
+            validatedUrlData = null;
+            importButton.disabled = true;
+            populateCategoryFilters(); // Update filters based on new data
+            navigateTo('browser');
         }
 
         /**
@@ -1929,113 +2391,6 @@
         }
 
         /**
-         * Handles the import button click.
-         */
-        function handleImport() {
-            const file = importFileInput.files[0];
-            if (!file) {
-                showToast("No file selected for import.", "error");
-                return;
-            }
-
-            if (!confirm("WARNING: Importing this file will REPLACE all your current knots and learning progress/history. Are you sure you want to continue? Consider exporting your current data first as a backup.")) {
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                try {
-                    const importedData = JSON.parse(event.target.result);
-
-                    if (!importedData || !Array.isArray(importedData.knots)) {
-                        throw new Error("Invalid file format. Expected an object with a 'knots' array.");
-                    }
-
-                    const importedKnots = importedData.knots;
-                    // Check if progress data seems present in *any* knot
-                    const hasKnotProgressData = importedKnots.some(k => k.learning && typeof k.learning.easeFactor === 'number');
-                    // Check for historical data
-                    const importedHistory = importedData.history;
-                    const hasHistoryData = Array.isArray(importedHistory);
-
-                    // Validate and sanitize imported knots
-                    const validatedKnots = [];
-                    importedKnots.forEach((knot, index) => {
-                        if (!knot || typeof knot.name !== 'string' || typeof knot.description !== 'string' || typeof knot.typingLevel !== 'number') {
-                             console.warn(`Skipping invalid knot structure at index ${index} during import.`);
-                             return;
-                        }
-                        knot.id = generateId(); // Always assign new ID on import
-                        if (hasKnotProgressData) {
-                             ensureLearningData(knot); // Validate/initialize if progress included
-                        } else {
-                             // Reset learning data if progress wasn't included
-                             knot.learning = {
-                                nextReviewDate: getTodayDateString(), interval: 0, easeFactor: DEFAULT_EASE_FACTOR, consecutiveCorrect: 0
-                            };
-                        }
-                         // Basic sanitization
-                         knot.category = typeof knot.category === 'string' ? knot.category.trim() : 'Uncategorized';
-                         knot.alternateNames = Array.isArray(knot.alternateNames) ? knot.alternateNames.map(n => String(n).trim()).filter(Boolean) : [];
-                         knot.mediaUrls = Array.isArray(knot.mediaUrls) ? knot.mediaUrls.filter(m => m && m.type && m.url) : [];
-                         knot.url = typeof knot.url === 'string' ? knot.url.trim() : null;
-
-                         validatedKnots.push(knot);
-                    });
-
-                     // Validate imported history data
-                     let validatedHistory = [];
-                     if (hasHistoryData) {
-                        validatedHistory = importedHistory.filter(item =>
-                            item && typeof item.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(item.date) &&
-                            typeof item.correct === 'number' && typeof item.total === 'number' && item.total >= item.correct
-                        );
-                        console.log(`Importing ${validatedHistory.length} valid historical records.`);
-                     } else {
-                         console.log("No historical data found or included in import file.");
-                     }
-
-
-                    // Replace current database and history
-                    knotDatabase = validatedKnots;
-                    historicalData = validatedHistory;
-                    saveKnots();
-                    saveHistory();
-
-                    let importMessage = `Successfully imported ${validatedKnots.length} knots.`;
-                    if (hasKnotProgressData) importMessage += " Learning progress included.";
-                    else importMessage += " Learning progress reset.";
-                    if (hasHistoryData) importMessage += ` ${validatedHistory.length} history records included.`;
-
-
-                    importStatusP.textContent = importMessage;
-                    importStatusP.className = 'text-sm mt-2 text-green-600';
-                    showToast("Data imported successfully!", "success");
-
-                    // Reset UI and navigate
-                    importFileInput.value = '';
-                    importButton.disabled = true;
-                    populateCategoryFilters(); // Update filters based on new data
-                    navigateTo('browser');
-
-                } catch (error) {
-                    console.error("Error importing file:", error);
-                    importStatusP.textContent = `Import failed: ${error.message}`;
-                    importStatusP.className = 'text-sm mt-2 text-red-600';
-                    showToast("Failed to import data. Check file format.", "error");
-                }
-            };
-
-            reader.onerror = function() {
-                 importStatusP.textContent = 'Error reading the selected file.';
-                 importStatusP.className = 'text-sm mt-2 text-red-600';
-                 showToast("Error reading file.", "error");
-            };
-
-            reader.readAsText(file);
-        }
-
-        /**
          * Resets all application data after confirmation.
          */
         function handleResetAllData() {
@@ -2071,7 +2426,18 @@
         function setupEventListeners() {
             // Navigation
             navButtons.forEach(button => {
-                button.addEventListener('click', () => navigateTo(button.dataset.section));
+                button.addEventListener('click', () => {
+                    navigateTo(button.dataset.section);
+                    // On mobile, collapse menu after selection
+                    if (window.innerWidth < 768) {
+                        mainNav.classList.remove('expanded');
+                    }
+                });
+            });
+            
+            // Mobile menu toggle
+            menuToggle.addEventListener('click', () => {
+                mainNav.classList.toggle('expanded');
             });
 
             // Knot Browser Filters/Sort
@@ -2141,12 +2507,36 @@
 
              // Save session state before unloading
              window.addEventListener('beforeunload', saveTestSessionState);
+
+             // Additional event listeners for Import/Export
+             importLocalTab.addEventListener('click', () => showImportTab('file'));
+             importUrlTab.addEventListener('click', () => showImportTab('url'));
+             importUrlValidateButton.addEventListener('click', validateImportUrl);
+             importUrlInput.addEventListener('keypress', (e) => {
+                 if (e.key === 'Enter') {
+                     validateImportUrl();
+                 }
+             });
         }
 
 
         // --- Initialization ---
         function initializeApp() {
             showLoading();
+            
+            // Register service worker for offline capabilities
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('./service-worker.js')
+                        .then(registration => {
+                            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                        })
+                        .catch(error => {
+                            console.log('ServiceWorker registration failed: ', error);
+                        });
+                });
+            }
+            
             loadKnots();
             loadHistory(); // Load historical data
             populateCategoryFilters(); // Populate filters initially
