@@ -250,6 +250,11 @@
                         <img src="https://unpkg.com/lucide-static@latest/icons/trash.svg" alt="trash icon" /> Delete
                     </button>
                  </div>
+                 <div class="mt-4">
+                    <button id="back-to-browser-bottom" class="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-sm">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-left.svg" alt="chevron left icon" /> Back to Browser
+                    </button>
+                 </div>
             </section>
 
             <section id="add-knot" class="app-section bg-white rounded-lg shadow p-4 md:p-6 hidden">
@@ -541,6 +546,7 @@
         const knotDetailSection = document.getElementById('knot-detail');
         const knotDetailContent = document.getElementById('knot-detail-content');
         const backToBrowserButton = document.getElementById('back-to-browser');
+        const backToBrowserBottomButton = document.getElementById('back-to-browser-bottom');
         const editKnotFromDetailButton = document.getElementById('edit-knot-from-detail');
         const deleteKnotFromDetailButton = document.getElementById('delete-knot-from-detail');
 
@@ -1148,37 +1154,20 @@
                 knotElement.innerHTML = `
                     <div>
                         <h3 class="font-semibold text-blue-700">${knot.name}</h3>
-                        <p class="text-sm text-gray-600">Level: ${knot.typingLevel} | Category: ${knot.category || 'N/A'}</p>
+                        <p class="text-sm text-gray-600">Level: ${knot.typingLevel} | ${knot.category || 'N/A'}</p>
                         <p class="text-xs text-gray-500">Next Review: <span class="${isDue ? 'font-bold text-red-600' : ''}">${nextReview}</span> (Ease: ${knot.learning.easeFactor.toFixed(1)})</p>
-                    </div>
-                    <div class="flex space-x-1 items-center"> <button class="view-knot-button text-blue-500 hover:text-blue-700 p-1 rounded hover:bg-blue-100" title="View Details">
-                             <img src="https://unpkg.com/lucide-static@latest/icons/eye.svg" alt="eye icon" />
-                         </button>
-                         <button class="edit-knot-button text-yellow-600 hover:text-yellow-700 p-1 rounded hover:bg-yellow-100" title="Edit Knot">
-                             <img src="https://unpkg.com/lucide-static@latest/icons/pencil.svg" alt="pencil icon" />
-                         </button>
-                         <button class="delete-knot-button text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-100" title="Delete Knot">
-                             <img src="https://unpkg.com/lucide-static@latest/icons/trash.svg" alt="trash icon" />
-                         </button>
                     </div>
                 `;
                 knotListContainer.appendChild(knotElement);
 
-                // Add event listeners directly to buttons
-                knotElement.querySelector('.view-knot-button').addEventListener('click', (e) => {
-                    e.stopPropagation();
+                // Add event listeners directly to the knot element
+                knotElement.addEventListener('click', () => {
                     renderKnotDetail(knot.id);
                 });
-                knotElement.querySelector('.edit-knot-button').addEventListener('click', (e) => {
-                    e.stopPropagation();
+                
+                // Add click, edit and delete functionality to the entire knot element
+                knotElement.addEventListener('dblclick', (e) => {
                     loadKnotIntoForm(knot.id);
-                });
-                knotElement.querySelector('.delete-knot-button').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    deleteKnot(knot.id);
-                });
-                 knotElement.addEventListener('click', () => {
-                    renderKnotDetail(knot.id);
                 });
             });
         }
@@ -2448,6 +2437,7 @@
 
             // Knot Detail View
             backToBrowserButton.addEventListener('click', () => navigateTo('browser'));
+            backToBrowserBottomButton.addEventListener('click', () => navigateTo('browser'));
              // Edit/Delete buttons attached in renderKnotDetail
 
             // Add/Edit Knot Form
